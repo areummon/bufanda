@@ -1,0 +1,58 @@
+[package]
+name = "bufanda"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "fashion_search"
+path = "src/lib.rs"
+
+[[bin]]
+name = "indexer"
+path = "src/bin/indexer.rs"
+
+[[bin]]
+name = "setup"
+path = "src/bin/setup.rs"
+
+[[bin]]
+name = "rebuild_progress"
+path = "src/bin/rebuild_progress.rs"
+
+[[test]]
+name = "unit_image"
+path = "tests/unit_image.rs"
+
+[[test]]
+name = "unit_model"
+path = "tests/unit_model.rs"
+
+[[test]]
+name = "integration_captioner"
+path = "tests/integration_captioner.rs"
+
+[[test]]
+name = "integration_pipeline"
+path = "tests/integration_pipeline.rs"
+
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+
+[dependencies]
+rustls = { version = "0.23", features = ["ring"] }
+axum = { version = "0.8", features = ["multipart"] }
+tokio = { version = "1.52", features = ["full"] }
+ort = { version = "2.0.0-rc.12", features = ["ndarray"] } 
+tokenizers = "0.22" 
+ndarray = "0.17"
+image = "0.25"
+qdrant-client = "1.17"
+serde = { version = "1.0", features = ["derive"] }
+dotenvy = "0.15"
+uuid = { version = "1.23", features = ["v4"] }
+serde_json = "1.0"
+reqwest = { version = "0.13", features = ["json", "multipart"] }
+base64 = "0.22"
+tower-http = { version = "0.6", features = ["fs"] }
+rand = "0.10"

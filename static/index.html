@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUFANDA — Fashion Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:wght@700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     #0e0e0e;
+      --paper:   #f5f0e8;
+      --warm:    #e8dfd0;
+      --accent:  #b8432f;
+      --muted:   #9a9080;
+      --serif:   'Cormorant Garamond', Georgia, serif;
+      --mono:    'DM Mono', monospace;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 4rem 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .masthead { display: flex; flex-direction: column; gap: 0.25rem; }
+
+    .masthead-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      line-height: 0.9;
+      font-style: normal;
+      text-transform: uppercase;
+    }
+
+    h1 span { font-style: normal; font-weight: 700; }
+
+    .header-meta {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: right;
+      padding-bottom: 0.75rem;
+      letter-spacing: 0.1em;
+      line-height: 1.8;
+    }
+
+    /* ── search ── */
+    .search-section {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 4rem;
+      border-bottom: 1px solid rgba(14,14,14,0.15);
+    }
+
+    .search-modes { display: flex; gap: 0; margin-bottom: 1.5rem; }
+
+    .mode-btn {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:first-child { border-right: none; }
+    .mode-btn.active { background: var(--ink); color: var(--paper); }
+
+    .search-form { display: none; animation: fadeUp 0.3s ease; }
+    .search-form.visible { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .text-input-wrap {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--ink);
+      max-width: 720px;
+    }
+
+    .text-input-wrap input {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 300;
+      font-style: italic;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--ink);
+    }
+
+    .text-input-wrap input::placeholder { color: var(--muted); }
+
+    .search-btn {
+      padding: 1rem 2rem;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .search-btn:hover { background: var(--accent); }
+    .search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .image-drop-zone {
+      max-width: 720px;
+      border: 1px dashed var(--ink);
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .image-drop-zone:hover,
+    .image-drop-zone.dragover { background: var(--warm); }
+
+    .image-drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.4; }
+
+    .drop-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+
+    .drop-sublabel { font-size: 0.9rem; font-style: italic; color: var(--muted); }
+
+    .preview-strip {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      max-width: 720px;
+    }
+
+    .preview-strip img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border: 1px solid var(--ink);
+    }
+
+    .preview-filename { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+
+    /* ── status bar ── */
+    .status-bar {
+      position: relative;
+      z-index: 1;
+      padding: 0.6rem 4rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-bar.visible { display: flex; }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── results ── */
+    .results-section {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 4rem;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(14,14,14,0.15);
+    }
+
+    .results-title { font-size: 1.8rem; font-weight: 300; font-style: italic; }
+
+    .results-count {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── masonry grid ── */
+    .masonry-grid {
+      columns: 5 200px;
+      column-gap: 3px;
+    }
+
+    .result-card {
+      break-inside: avoid;
+      margin-bottom: 3px;
+      position: relative;
+      overflow: hidden;
+      background: var(--warm);
+      cursor: pointer;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .card-image-wrap {
+      position: relative;
+      overflow: hidden;
+      display: block;
+    }
+
+    .card-image-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .result-card:hover .card-image-wrap img { transform: scale(1.04); }
+
+    .card-score {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.4rem;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(14,14,14,0.8) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+    }
+
+    .result-card:hover .card-overlay { opacity: 1; }
+
+    .overlay-desc {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--paper);
+      line-height: 1.4;
+    }
+
+    .card-info {
+      padding: 0.6rem 0.75rem 0.75rem;
+      border-top: 1px solid rgba(14,14,14,0.06);
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--ink);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── load more ── */
+    .load-more-wrap {
+      text-align: center;
+      padding: 3rem 0 1rem;
+    }
+
+    .load-more-btn {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.85rem 3rem;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .load-more-btn:hover { background: var(--ink); color: var(--paper); }
+    .load-more-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .load-more-wrap.hidden { display: none; }
+
+    /* ── empty / error ── */
+    .state-message {
+      padding: 4rem 0;
+      text-align: center;
+      display: none;
+    }
+
+    .state-message.visible { display: block; }
+
+    .state-message .big-text {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .state-message .sub-text {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem 4rem;
+      border-top: 1px solid rgba(14,14,14,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .footer-right { font-size: 0.85rem; font-style: italic; color: var(--muted); }
+
+    @media (max-width: 768px) {
+      header, .search-section, .results-section, footer {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      h1 { font-size: 3.5rem; }
+      .masonry-grid { columns: 2 150px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="masthead">
+      <span class="masthead-label">Multimodal Fashion Search — DeepFashion2</span>
+      <h1>BUFANDA</h1>
+    </div>
+    <div class="header-meta">
+      CLIP · Qdrant · llava:7b<br/>
+      Dual-vector retrieval<br/>
+      Text &amp; Image search
+    </div>
+  </header>
+
+  <section class="search-section">
+    <div class="search-modes">
+      <button class="mode-btn active" onclick="setMode('text')" id="btn-text">Text Query</button>
+      <button class="mode-btn" onclick="setMode('image')" id="btn-image">Image Query</button>
+    </div>
+
+    <div class="search-form visible" id="form-text">
+      <div class="text-input-wrap">
+        <input
+          type="text"
+          id="text-query"
+          placeholder="a casual summer dress with sandals…"
+          autocomplete="off"
+        />
+        <button class="search-btn" id="text-submit" onclick="searchByText()">Search</button>
+      </div>
+    </div>
+
+    <div class="search-form" id="form-image">
+      <div
+        class="image-drop-zone"
+        id="drop-zone"
+        ondragover="onDragOver(event)"
+        ondragleave="onDragLeave(event)"
+        ondrop="onDrop(event)"
+      >
+        <input type="file" accept="image/*" id="image-input" onchange="onFileSelect(event)" />
+        <div class="drop-icon">⬡</div>
+        <span class="drop-label">Drop image or click to upload</span>
+        <span class="drop-sublabel">jpg, png, webp</span>
+      </div>
+      <div class="preview-strip" id="preview-strip" style="display:none">
+        <img id="preview-img" src="" alt="preview" />
+        <div>
+          <div class="preview-filename" id="preview-name"></div>
+          <button class="search-btn" style="margin-top:0.5rem" id="image-submit" onclick="searchByImage()">
+            Search This Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="status-bar" id="status-bar">
+    <div class="status-dot"></div>
+    <span id="status-text">Searching…</span>
+  </div>
+
+  <section class="results-section" id="results-section" style="display:none">
+    <div class="results-header">
+      <span class="results-title" id="results-title">Results</span>
+      <span class="results-count" id="results-count"></span>
+    </div>
+    <div class="masonry-grid" id="results-grid"></div>
+    <div class="load-more-wrap hidden" id="load-more-wrap">
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMore()">Load More</button>
+    </div>
+  </section>
+
+  <div class="state-message" id="empty-state">
+    <div class="big-text">Nothing found.</div>
+    <div class="sub-text">Try a different query or upload another image</div>
+  </div>
+
+  <div class="state-message" id="error-state">
+    <div class="big-text">Something went wrong.</div>
+    <div class="sub-text" id="error-text">Could not reach the search API</div>
+  </div>
+
+  <footer>
+    <span class="footer-left">Bufanda · Fashion Search Engine</span>
+    <span class="footer-right">DeepFashion2 validation set</span>
+  </footer>
+
+  <script>
+    const API         = '';
+    const PAGE_SIZE   = 20;
+    const MAX_RESULTS = 100;
+
+    let selectedFile   = null;
+    let currentMode    = 'text';
+    let allResults     = [];
+    let displayedCount = 0;
+
+    // ── mode switching ────────────────────────────────────────────────────────
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('btn-text').classList.toggle('active', mode === 'text');
+      document.getElementById('btn-image').classList.toggle('active', mode === 'image');
+      document.getElementById('form-text').classList.toggle('visible', mode === 'text');
+      document.getElementById('form-image').classList.toggle('visible', mode === 'image');
+      clearResults();
+    }
+
+    // ── text search ───────────────────────────────────────────────────────────
+
+    document.getElementById('text-query').addEventListener('keydown', e => {
+      if (e.key === 'Enter') searchByText();
+    });
+
+    async function searchByText() {
+      const query = document.getElementById('text-query').value.trim();
+      if (!query) return;
+
+      setLoading(true, `Searching for "${query}"…`);
+      clearResults();
+
+      try {
+        const res = await fetch(`${API}/search/text?limit=${MAX_RESULTS}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        allResults = data.results || [];
+        displayedCount = 0;
+        renderPage(`"${query}"`);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // ── image search ──────────────────────────────────────────────────────────
+
+    function onDragOver(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone').classList.add('dragover');
+    }
+
+    function onDragLeave(e) {
+      document.getElementById('drop-zone').classList.remove('dragover');
+    }
+
+    function onDrop(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone').classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) setPreview(file);
+    }
+
+    function onFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) setPreview(file);
+    }
+
+    function setPreview(file) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('preview-name').textContent = file.name;
+        document.getElementById('preview-strip').style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function searchByImage() {
+      if (!selectedFile) return;
+
+      setLoading(true, 'Encoding image and searching…');
+      clearResults();
+
+      try {
+        const form = new FormData();
+        form.append('image', selectedFile);
+
+        const res = await fetch(`${API}/search/image?limit=${MAX_RESULTS}`, {
+          method: 'POST',
+          body: form,
+        });
+
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        allResults = data.results || [];
+        displayedCount = 0;
+        renderPage('Similar outfits');
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // ── rendering ─────────────────────────────────────────────────────────────
+
+    function renderPage(queryLabel) {
+      const section = document.getElementById('results-section');
+      const grid    = document.getElementById('results-grid');
+      const title   = document.getElementById('results-title');
+      const count   = document.getElementById('results-count');
+      const empty   = document.getElementById('empty-state');
+
+      if (!allResults || allResults.length === 0) {
+        section.style.display = 'none';
+        empty.classList.add('visible');
+        return;
+      }
+
+      title.textContent = queryLabel;
+      section.style.display = 'block';
+
+      const page = allResults.slice(displayedCount, displayedCount + PAGE_SIZE);
+      page.forEach((r, i) => {
+        grid.appendChild(makeCard(r, displayedCount + i));
+      });
+
+      displayedCount += page.length;
+      count.textContent = `${displayedCount} of ${allResults.length} results`;
+
+      const wrap = document.getElementById('load-more-wrap');
+      wrap.classList.toggle('hidden', displayedCount >= allResults.length);
+    }
+
+    function loadMore() {
+      const btn = document.getElementById('load-more-btn');
+      btn.disabled = true;
+      btn.textContent = 'Loading…';
+      setTimeout(() => {
+        renderPage(document.getElementById('results-title').textContent);
+        btn.disabled = false;
+        btn.textContent = 'Load More';
+      }, 50);
+    }
+
+    function makeCard(r, index) {
+      const score = (r.score * 100).toFixed(1);
+      const desc  = r.description || 'No description';
+
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.style.animationDelay = `${Math.min(index % PAGE_SIZE, 12) * 0.04}s`;
+      card.innerHTML = `
+        <div class="card-image-wrap">
+          <img
+            src="/image?path=${encodeURIComponent(r.image_url)}"
+            alt="${escapeHtml(desc)}"
+            loading="lazy"
+            onerror="this.parentElement.parentElement.style.display='none'"
+          />
+          <div class="card-score">${score}%</div>
+          <div class="card-overlay">
+            <p class="overlay-desc">${escapeHtml(desc)}</p>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-desc">${escapeHtml(desc)}</div>
+        </div>
+      `;
+      return card;
+    }
+
+    // ── ui helpers ────────────────────────────────────────────────────────────
+
+    function setLoading(on, message = 'Searching…') {
+      const bar  = document.getElementById('status-bar');
+      const btn1 = document.getElementById('text-submit');
+      const btn2 = document.getElementById('image-submit');
+      document.getElementById('status-text').textContent = message;
+      bar.classList.toggle('visible', on);
+      if (btn1) btn1.disabled = on;
+      if (btn2) btn2.disabled = on;
+    }
+
+    function clearResults() {
+      allResults     = [];
+      displayedCount = 0;
+      document.getElementById('results-section').style.display = 'none';
+      document.getElementById('results-grid').innerHTML = '';
+      document.getElementById('load-more-wrap').classList.add('hidden');
+      document.getElementById('empty-state').classList.remove('visible');
+      document.getElementById('error-state').classList.remove('visible');
+    }
+
+    function showError(msg) {
+      document.getElementById('error-text').textContent = msg;
+      document.getElementById('error-state').classList.add('visible');
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

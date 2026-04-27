@@ -1,0 +1,10 @@
+.env
+.envrc
+.log
+data/
+models/
+target/
+.direnv/
+.devenv/
+resut
+result-*
