@@ -105,7 +105,8 @@
       transition: all 0.2s;
     }
 
-    .mode-btn:first-child { border-right: none; }
+    .mode-btn:first-child { border-right: none; border-radius: 8px 0 0 8px; }
+    .mode-btn:last-child  { border-radius: 0 8px 8px 0; }
     .mode-btn.active { background: var(--ink); color: var(--paper); }
 
     .search-form { display: none; animation: fadeUp 0.3s ease; }
@@ -121,6 +122,8 @@
       align-items: stretch;
       border: 1px solid var(--ink);
       max-width: 720px;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     .text-input-wrap input {
@@ -162,6 +165,7 @@
       cursor: pointer;
       transition: background 0.2s;
       position: relative;
+      border-radius: 16px;
     }
 
     .image-drop-zone:hover,
@@ -201,6 +205,7 @@
       height: 80px;
       object-fit: cover;
       border: 1px solid var(--ink);
+      border-radius: 10px;
     }
 
     .preview-filename { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
@@ -264,23 +269,25 @@
     /* ── masonry grid ── */
     .masonry-grid {
       columns: 5 200px;
-      column-gap: 3px;
+      column-gap: 12px;
     }
 
     .result-card {
       break-inside: avoid;
-      margin-bottom: 3px;
+      margin-bottom: 12px;
       position: relative;
       overflow: hidden;
       background: var(--warm);
       cursor: pointer;
       animation: fadeUp 0.4s ease both;
+      border-radius: 16px;
     }
 
     .card-image-wrap {
       position: relative;
       overflow: hidden;
       display: block;
+      border-radius: 16px 16px 0 0;
     }
 
     .card-image-wrap img {
@@ -302,6 +309,7 @@
       font-size: 0.55rem;
       letter-spacing: 0.1em;
       padding: 0.2rem 0.4rem;
+      border-radius: 6px;
     }
 
     .card-overlay {
@@ -423,7 +431,7 @@
 
   <header>
     <div class="masthead">
-      <span class="masthead-label">Multimodal Fashion Search — DeepFashion2</span>
+      <span class="masthead-label">Multimodal Fashion Search</span>
       <h1>BUFANDA</h1>
     </div>
     <div class="header-meta">
@@ -504,7 +512,6 @@
 
   <footer>
     <span class="footer-left">Bufanda · Fashion Search Engine</span>
-    <span class="footer-right">DeepFashion2 validation set</span>
   </footer>
 
   <script>
