@@ -138,11 +138,13 @@ models/
 Create a `.env` file in the project root:
 
 ```env
-QDRANT_URL=https://your-cluster.qdrant.io
+QDRANT_URL=https://your-cluster.qdrant.io:6334
 QDRANT_API_KEY=your_api_key
 COLLECTION=outfits
 PORT=3000
 ```
+
+> `6334` is the default Qdrant gRPC port. Use `6333` if you are connecting over REST instead.
 
 ### 3. Create the Qdrant collection
 
