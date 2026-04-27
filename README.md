@@ -112,17 +112,8 @@ tests/
 
 ### 1. Export the models
 
-```python
-from optimum.exporters.onnx import main_export
-
-# Text encoder
-main_export("clip-ViT-B-32-multilingual-v1", output="models/text/", task="feature-extraction")
-
-# Image encoder
-main_export("patrickjohncyh/fashion-clip", output="models/image/", task="feature-extraction")
-```
-
-Place the resulting `model.onnx` files and `tokenizer.json` at:
+Follow this Hugging Face [tutorial](https://huggingface.co/docs/optimum-onnx/onnx/usage_guides/export_a_model), 
+donwload them and then place the resulting `model.onnx` files and `tokenizer.json` at:
 
 ```
 models/
@@ -141,7 +132,6 @@ Create a `.env` file in the project root:
 QDRANT_URL=https://your-cluster.qdrant.io:6334
 QDRANT_API_KEY=your_api_key
 COLLECTION=outfits
-PORT=3000
 ```
 
 > `6334` is the default Qdrant gRPC port. Use `6333` if you are connecting over REST instead.
